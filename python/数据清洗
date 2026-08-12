@@ -1,0 +1,53 @@
+import pandas as pd
+df=pd.read_csv("实习练习-销售脏数据.csv")
+df.columns=df.columns.str.strip()
+df=df.dropna(how="all")
+df=df.drop_duplicates(subset=df.columns,keep="first")
+
+
+
+df["数量"]=df["数量"].astype(str).str.strip().str.replace("个","",regex=False)#regex=False 的含义：告诉 Pandas 这里 "个" 是普通文字，不是正则表达式。如果不写，新版本的 Pandas 会报警告，因为它默认把第一个参数当成正则规则。
+df["数量"]=pd.to_numeric(df["数量"],errors="coerce")
+df["单价(元)"]=df["单价(元)"].astype(str).str.strip().str.replace("元","",regex=False).str.replace(",","",regex=False)
+df["单价(元)"]=pd.to_numeric(df["单价(元)"],errors="coerce")
+df["销售额"]=pd.to_numeric(df["销售额"],errors="coerce")
+
+
+
+df["Date"]=pd.to_datetime(df["Date"],format="mixed",errors="coerce")
+df=df.dropna(subset=["Date"])
+
+
+
+
+
+异常行=(df["数量"]>1000)|(df["数量"]==0)|(df["单价(元)"]==0)
+
+df.loc[~异常行,"销售额"]=df.loc[~异常行,"数量"]*df.loc[~异常行,"单价(元)"]
+#~异常行是异常行取非操作也就是正常行
+df["数量"] = df["数量"].astype(object)
+df["单价(元)"] = df["单价(元)"].astype(object)
+df["销售额"] = df["销售额"].astype(object)
+#三列转成文本类型，再写"异常"（避免数字列写字符串报warning
+#pandas 中：一列原本是纯数值类型（int64 / float64），只能存放数字、NaN。如果你强行往这一列写入字符串（"异常"、"未知"）：数值类型无法存储文本。pandas 为了兼容，自动把整列的数据类型强制转换成 object（混合类型）
+df.loc[异常行,"数量"]="异常"
+df.loc[异常行,"单价(元)"]="异常"
+df.loc[异常行,"销售额"]="异常"
+
+
+df=df.fillna("未知")
+
+
+df["销售额_数字"] = pd.to_numeric(df["销售额"],errors="coerce")#创建全新额外一列 `销售额_数字`，临时存在的
+#将销售额临时存为数字方便以后的计算.sum
+print("按类别汇总")
+print(df.groupby("类别")["销售额_数字"].sum().sort_values(ascending=False))
+print("按地区汇总")
+print(df.groupby("地区")["销售额_数字"].sum().sort_values(ascending=False))
+print("按销售员汇总")
+print(df.groupby("销售员")["销售额_数字"].sum().sort_values(ascending=False))
+df=df.drop(columns=["销售额_数字"])#删除这个临时的series
+
+
+
+print(df)
