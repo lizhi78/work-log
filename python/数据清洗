@@ -101,7 +101,7 @@ for sheet in sheet_names:
     md_content += "\n\n"  # 表格之间空行分隔
 
 # 3. 保存成md文件
-with open(output_md, "w", encoding="utf-8") as f:
+with open(output_md, "w", encoding="utf-8-sig") as f:
     f.write(md_content)
 
 print("Markdown报告生成完成！")
