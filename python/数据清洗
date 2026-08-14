@@ -1,5 +1,5 @@
 import pandas as pd
-df=pd.read_csv("实习练习-销售脏数据.csv")
+df=pd.read_csv("./python/实习练习-销售脏数据.csv")
 df.columns=df.columns.str.strip()
 df=df.dropna(how="all")
 df=df.drop_duplicates(subset=df.columns,keep="first")
@@ -46,11 +46,11 @@ stat_category.columns=["类别", "销售额合计"]#给表头名称
 print(stat_category)
 print("按地区汇总")
 stat_region=df.groupby("地区")["销售额_数字"].sum().sort_values(ascending=False).reset_index()
-stat_region.columns=["地区", "销售额合计"]
+stat_region.columns=["地区", "销售额合计"]#给表头名称
 print(stat_region)
 print("按销售员汇总")
 stat_sales=df.groupby("销售员")["销售额_数字"].sum().sort_values(ascending=False).reset_index()
-stat_region.columns = ["销售员", "销售额合计"]
+stat_sales.columns=["销售员", "销售额合计"]
 print(stat_sales)
 df=df.drop(columns=["销售额_数字"])#删除这个临时的series
 print(df)
