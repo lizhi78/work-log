@@ -1,5 +1,6 @@
 import pandas as pd
-df=pd.read_csv("./python/实习练习-销售脏数据.csv")
+df = pd.read_csv("./python/data/实习练习-销售脏数据.csv")
+
 print(df.shape)
 df.columns=df.columns.str.strip()
 df=df.dropna(how="all")
@@ -15,14 +16,24 @@ df["销售额"]=pd.to_numeric(df["销售额"],errors="coerce")
 
 
 
+# 1. 复制原始文本，新增一列【备份原始日期字符串】
 
+df["Date_original"] = df["Date"]
 
+# 2. 原地覆盖 Date 列，转为标准 datetime；解析失败 → NaT
+
+df["Date"] = pd.to_datetime(df["Date"], format="mixed", errors="coerce")
+
+# 3. 新增布尔标记列，标识本行日期是否解析成功
+
+df ["is_date_valid"] = df ["Date"].notna ()
+'''
 df["Date"]=pd.to_datetime(df["Date"],format="mixed",errors="coerce")
 df=df.dropna(subset=["Date"])
-#第一行代码的作用是将不同格式的时日期表示全都转换成统一标准的pandas的日期表示格式datetime64,并将转换失败的(如2026-2-30，abc等其他格式)变成NaT
+#第一行代码的作用是将不同格式的时日期表示全都转换成统一标准的pandas的日期表示格式datetime64,并将转换失败的(如2026-2-30，abc,8月23日等其他格式)变成NaT
 #第二行代码的作用是查找Date列为空(NaT)的行删除这一整行
 # 两行代码结合起来就是智能转换Date格式，转换不成功的标记为空，再将所有Date列为空的行删除
-
+'''
 
 
 
@@ -65,7 +76,7 @@ print(df)
 #导出成不同sheet的excel（要用pd.ExcelWriter)
 df["Date"] = pd.to_datetime(df["Date"],format="mixed", errors="coerce").dt.strftime("%Y-%m-%d")#原始文本 → pd.to_datetime → datetime时间类型 → .dt.strftime → 普通字符串str
 # 开启Excel写入通道
-with pd.ExcelWriter("销售数据结果.xlsx",engine="openpyxl")as writer:
+with pd.ExcelWriter("./python/data/销售数据结果.xlsx",engine="openpyxl")as writer:
     # 第一个工作表
     df.to_excel(writer, sheet_name="清洗明细",index=False)
     # 第二个工作表
@@ -84,8 +95,8 @@ print("导出完成")
 
 
 #将excel导出成Markdown
-excel_path = "销售数据结果.xlsx"  # 你的Excel文件路径
-output_md = "数据分析报告.md"
+excel_path = "./python/data/销售数据结果.xlsx"  # 你的Excel文件路径
+output_md = "./python/data/数据分析报告.md"
 
 
 
@@ -117,13 +128,10 @@ print("Markdown报告生成完成！")
 
 
 
-'''
-#调用API
-
 import json
 import pandas as pd
-from llm_api import chat_with_ai
 from datetime import datetime
+from llm_api import chat_with_ai 
 
 def safe_json_dumps(data):
     def convert_obj(obj):
@@ -131,12 +139,13 @@ def safe_json_dumps(data):
             return str(obj)
         if isinstance(obj, (pd.Series, pd.DataFrame)):
             return obj.to_dict()
+        # numpy数字类型转换
         if hasattr(obj, "item"):
             return obj.item()
         raise TypeError(f"无法序列化对象 {type(obj)}")
     return json.dumps(data, default=convert_obj, ensure_ascii=False, indent=2)
 
-# ==========你的原有代码不变，只改调用处=========
+# ========== 使用部分 =========
 stat_info = {
     "总行数": len(df),
     "列名": df.columns.tolist(),
@@ -144,7 +153,6 @@ stat_info = {
     "数值字段统计": df.describe().to_dict()
 }
 
-# 关键改动！！
 stat_json_str = safe_json_dumps(stat_info)
 
 prompt = f"""
@@ -155,4 +163,3 @@ prompt = f"""
 
 result = chat_with_ai(prompt)
 print(result)
-'''
