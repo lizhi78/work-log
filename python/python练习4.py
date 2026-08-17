@@ -66,7 +66,7 @@ with open("地区统计.json","w",encoding="utf-8-sig") as f:
 
       提示：strip() 去空格、replace() 换掉逗号和单位、try/except 兜底。
       这题下周项目里直接要用。
-'''
+
 def 转数字(值):
     s=值.strip( )
     s=s.replace(",","")
@@ -75,7 +75,23 @@ def 转数字(值):
     try:
         return int(s)
     except:
-        return 0
+
+    
+    return 0
+'''
+#pandas写法
+import pandas as pd
+def 转数字(值):
+    s=值.astype(str).str.strip()
+    s = s.str.replace(",","")
+    s = s.str.replace("个","")
+    s = s.str.replace("元","")
+    s=pd.to_numeric(s,errors="coerce").fillna("错误")
+    return s
+
+
+
+
 '''
  20. ★ 综合题：
       读第 16 题生成的 CSV → 用第 19 题的函数把数量单价转成数字

@@ -71,6 +71,9 @@ for area,sale in area_dic.items():
     print(f"{area}:{sale}")
 '''
 #pandas的写法
+def 销售额 (lista):
+    total=lista["数量"]*lista["单价"]
+    return total
 import pandas as pd
 df = pd.DataFrame(销售数据)
 df["销售额"] = 销售额(df)

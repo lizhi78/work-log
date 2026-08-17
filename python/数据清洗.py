@@ -17,15 +17,10 @@ df["销售额"]=pd.to_numeric(df["销售额"],errors="coerce")
 
 
 # 1. 复制原始文本，新增一列【备份原始日期字符串】
-
 df["Date_original"] = df["Date"]
-
 # 2. 原地覆盖 Date 列，转为标准 datetime；解析失败 → NaT
-
 df["Date"] = pd.to_datetime(df["Date"], format="mixed", errors="coerce")
-
 # 3. 新增布尔标记列，标识本行日期是否解析成功
-
 df ["is_date_valid"] = df ["Date"].notna ()
 '''
 df["Date"]=pd.to_datetime(df["Date"],format="mixed",errors="coerce")
