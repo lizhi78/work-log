@@ -2,6 +2,8 @@ import pandas as pd
 df = pd.read_csv("./python/data/实习练习-销售脏数据.csv")
 
 print(df.shape)
+print(df.info())
+
 df.columns=df.columns.str.strip()
 df=df.dropna(how="all")
 df=df.drop_duplicates(subset=df.columns,keep="first")
